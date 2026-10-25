@@ -1,0 +1,36 @@
+name: Build OpenWrt for TL-MR3020
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swatasks: true
+
+      - name: Build OpenWrt Image
+        uses: izer-xyz/openwrt-imagebuilder-action@v1
+        with:
+          image: ar71xx/generic
+          profile: tl-mr3020-v1
+          openwrt-version: 19.07.10
+          packages: kmod-usb-storage kmod-fs-ext4 block-mount -luci
+
+      - name: Upload Firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-tl-mr3020-custom
+          path: /home/runner/work/openwrt-builder/openwrt-builder/bin/targets/**/*.bin
