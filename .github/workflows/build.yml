@@ -8,9 +8,11 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Install Dependencies
-        run: sudo apt-get update && sudo apt-get install -y build-essential libncurses5-dev gawk git unzip libssl-dev wget python3 zlib1g-dev
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libncurses5-dev gawk git unzip libssl-dev wget python3 zlib1g-dev
 
-      - name: Download OpenWrt Image Builder
+      - name: Download and Build OpenWrt Image
         run: |
           wget https://downloads.openwrt.org/releases/19.07.10/targets/ar71xx/generic/openwrt-imagebuilder-19.07.10-ar71xx-generic.Linux-x86_64.tar.xz
           tar -xf openwrt-imagebuilder-19.07.10-ar71xx-generic.Linux-x86_64.tar.xz
@@ -21,4 +23,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: openwrt-tl-mr3020-custom
-          path: openwrt-imagebuilder-19.07.10-ar71xx-generic.Linux-x86_64/bin/targets/ar71xx/generic/*.bin
+          path: openwrt-imagebuilder-19.07.10-ar71xx-generic.Linux-x86_64/bin/targets/ar71xx/generic/*sysupgrade.bin
