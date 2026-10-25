@@ -1,4 +1,4 @@
-name: Build OpenWrt for TL-MR3020
+name: Build OpenWrt Docker
 
 on:
   workflow_dispatch:
@@ -7,20 +7,24 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential libncurses5-dev gawk git unzip libssl-dev wget python3 zlib1g-dev
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swatasks: true
 
-      - name: Download and Build OpenWrt Image
+      - name: Build via OpenWrt Image Builder Docker
         run: |
-          wget https://downloads.openwrt.org/releases/19.07.10/targets/ar71xx/generic/openwrt-imagebuilder-19.07.10-ar71xx-generic.Linux-x86_64.tar.xz
-          tar -xf openwrt-imagebuilder-19.07.10-ar71xx-generic.Linux-x86_64.tar.xz
-          cd openwrt-imagebuilder-19.07.10-ar71xx-generic.Linux-x86_64
-          make image PROFILE="tl-mr3020-v1" PACKAGES="kmod-usb-storage kmod-fs-ext4 block-mount -luci"
+          docker run --rm -v ${PWD}:/workdir openwrt/imagebuilder:ar71xx-generic-19.07.10 \
+            make image PROFILE="tl-mr3020-v1" PACKAGES="kmod-usb-storage kmod-fs-ext4 block-mount -luci"
 
       - name: Upload Firmware
         uses: actions/upload-artifact@v4
         with:
           name: openwrt-tl-mr3020-custom
-          path: openwrt-imagebuilder-19.07.10-ar71xx-generic.Linux-x86_64/bin/targets/ar71xx/generic/*sysupgrade.bin
+          path: bin/targets/ar71xx/generic/*sysupgrade.bin
